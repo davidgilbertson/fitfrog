@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createLog, dateKey, shiftDate, historyDates, setDone, updateExercises, validateLog} from '../dist/model.js';
+import {createLog, dateKey, shiftDate, historyDates, setDone, updateExercises, validateLog} from '../src/model.js';
 
 test('first use is today plus seven empty past days', () => {
   const log = createLog('2026-09-14');

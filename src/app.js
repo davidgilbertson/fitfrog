@@ -1,5 +1,5 @@
 import {dateKey, historyDates, setDone} from './model.js';
-import {loadLog, saveLog, STORAGE_KEY} from './storage.js';
+import {loadLog, saveLog, sync, adoptId, LOG_KEY} from './storage.js';
 import {renderGrid, fitGrid} from './grid.js';
 import {setupDialogs} from './dialogs.js';
 
@@ -38,6 +38,18 @@ function render() {
   document.querySelector('#earlier-days').hidden = dates.length === 0 || dates.at(-1) <= log.startDate;
 }
 
+// A link from Settings carries ?id=; it replaces this browser's own log. The rare failure cases
+// (a mangled link, or opening it while offline) just get a message.
+const linkedId = new URL(location.href).searchParams.get('id');
+if (linkedId) {
+  try {
+    if (!(await adoptId(linkedId))) showError(error, 'That link’s ID isn’t recognised. Check the whole link was copied. Showing this browser’s own log instead.');
+    history.replaceState(null, '', location.pathname);
+  } catch (cause) {
+    showError(error, `Couldn’t load the linked log (${cause.message}). Check your connection and reload.`);
+  }
+}
+
 try {
   log = loadLog();
   render();
@@ -61,15 +73,23 @@ try {
     render();
     region.scrollTop = 0;
   }
+  // Failures here are expected when offline; the local log is fine and the next sync will catch up.
+  async function pull() {
+    try {
+      if (await sync()) {log = loadLog(); render();}
+    } catch (cause) {console.warn('Sync failed', cause);}
+  }
+  pull();
   setInterval(refreshDate, 10_000);
-  document.addEventListener('visibilitychange', () => {if (!document.hidden) refreshDate();});
-  window.addEventListener('focus', refreshDate);
+  document.addEventListener('visibilitychange', () => {if (!document.hidden) {refreshDate(); pull();}});
+  window.addEventListener('focus', () => {refreshDate(); pull();});
+  window.addEventListener('online', pull);
   window.addEventListener('storage', event => {
-    if (event.key !== STORAGE_KEY) return;
+    if (event.key !== LOG_KEY) return;
     try {log = loadLog(); render();} catch (cause) {showError(error, cause.message);}
   });
 
-  // Optional browser-agent access to the same visible log; no server or account.
+  // Optional browser-agent access to the same visible log.
   if (document.modelContext?.registerTool) {
     const lifecycle = new AbortController();
     window.addEventListener('pagehide', () => lifecycle.abort(), {once: true});
@@ -85,5 +105,5 @@ try {
   }
 } catch (cause) {
   showError(error, `Could not open your saved log. ${cause.message} Nothing has been overwritten.`);
-  document.querySelector('#manage-exercises').disabled = true;
+  document.querySelector('#open-settings').disabled = true;
 }

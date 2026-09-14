@@ -1,9 +1,10 @@
 import {dateFromKey, updateExercises} from './model.js';
+import {userId} from './storage.js';
 
 const cross = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
 
 export function setupDialogs(getLog, commit, render) {
-  const exercisesDialog = document.querySelector('#exercise-dialog');
+  const settingsDialog = document.querySelector('#settings-dialog');
   const notesDialog = document.querySelector('#notes-dialog');
   const list = document.querySelector('#exercise-list');
   let draft = [];
@@ -11,7 +12,7 @@ export function setupDialogs(getLog, commit, render) {
   let notesDay;
   let originalNote;
 
-  for (const dialog of [exercisesDialog, notesDialog]) {
+  for (const dialog of [settingsDialog, notesDialog]) {
     dialog.querySelector('.icon-button[data-close]').innerHTML = cross;
     dialog.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
   }
@@ -72,12 +73,26 @@ export function setupDialogs(getLog, commit, render) {
     if (focusId) list.querySelector(`input[data-id="${CSS.escape(focusId)}"]`)?.focus();
   }
 
-  document.querySelector('#manage-exercises').addEventListener('click', () => {
+  document.querySelector('#open-settings').addEventListener('click', () => {
     originalExercises = JSON.stringify(getLog().exercises);
     draft = structuredClone(getLog().exercises);
     document.querySelector('#exercise-error').hidden = true;
     renderExercises();
-    exercisesDialog.showModal();
+    settingsDialog.showModal();
+  });
+  const shareLink = document.querySelector('#share-link');
+  shareLink.value = `${location.origin}${location.pathname}?id=${userId()}`;
+  document.querySelector('#copy-link').addEventListener('click', async () => {
+    const label = document.querySelector('#copy-link span');
+    try {
+      await navigator.clipboard.writeText(shareLink.value);
+      label.textContent = 'Copied';
+    } catch {
+      // No clipboard API (e.g. plain http on the LAN); the link is still there to select by hand.
+      shareLink.select();
+      label.textContent = 'Select and copy';
+    }
+    setTimeout(() => {label.textContent = 'Copy';}, 2000);
   });
   document.querySelector('#add-exercise').addEventListener('click', () => {
     const exercise = {id: crypto.randomUUID(), name: ''};
@@ -91,7 +106,7 @@ export function setupDialogs(getLog, commit, render) {
       if (JSON.stringify(log.exercises) !== originalExercises) throw new Error('Exercises changed in another tab. Cancel and reopen this dialog.');
       updateExercises(log, draft.filter(exercise => !exercise.deleted));
     }, error);
-    if (success) {exercisesDialog.close(); render();}
+    if (success) {settingsDialog.close(); render();}
   });
   document.querySelector('#notes-form').addEventListener('submit', event => {
     event.preventDefault();

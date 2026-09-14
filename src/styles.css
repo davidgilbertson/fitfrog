@@ -66,6 +66,7 @@ dialog { background: #20262b; color: #dce4e8; border: 1px solid #3a464d; border-
 dialog::backdrop { background: #060a0ecc; }
 .dialog-header { margin-bottom: 22px; }
 h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+h3 { margin: 0 0 14px; font-size: 1rem; font-weight: 600; color: #bcc8cd; }
 .dialog-footer { justify-content: flex-end; margin-top: 24px; }
 .dialog-footer button { min-width: 84px; }
 input, textarea { background: #181d21; border: 1px solid #4a585f; color: #edf2f7; border-radius: 6px; padding: 10px 12px; width: 100%; min-width: 0; }
@@ -76,6 +77,11 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 .exercise-editor.pending-delete .undo-delete { grid-column: 2 / -1; width: auto; }
 .delete-button { color: #e3a7a7; }
 .storage-note { margin: 22px 0 0; font-size: .7rem; line-height: 1.5; color: #9babb4; }
+.link-section { margin-top: 24px; padding-top: 22px; border-top: 1px solid #354047; }
+.link-section p { margin: 0 0 14px; font-size: .85rem; line-height: 1.5; color: #9babb4; }
+.link-row { display: flex; gap: 8px; }
+.link-row input { font-family: Consolas, "SFMono-Regular", ui-monospace, monospace; font-size: .85rem; }
+.link-row button { flex-shrink: 0; }
 .error { color: #ffc0b8; font-size: .85rem; line-height: 1.5; margin: 12px 0; }
 [hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

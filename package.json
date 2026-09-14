@@ -1,12 +1,20 @@
 {
-  "name": "exercise-tracker",
+  "name": "fitfrog",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/serve.js",
-    "test": "node --test",
-    "check": "node scripts/check.js"
+    "dev": "vite",
+    "build": "vite build",
+    "deploy": "vite build && wrangler deploy",
+    "test": "node --test"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.54.8",
+    "vite": "^8.3.0",
+    "wrangler": "^4.131.1"
+  }
 }

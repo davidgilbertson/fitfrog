@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "fitfrog",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-14",
+  "assets": {
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "USER_LOG",
+        "class_name": "UserLog"
+      }
+    ]
+  },
+  "exports": {
+    "UserLog": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "routes": [
+    {
+      "pattern": "fitfrog.dgapps.io",
+      "custom_domain": true
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

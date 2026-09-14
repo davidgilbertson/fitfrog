@@ -10,3 +10,5 @@ node_modules/
 Thumbs.db
 coverage/
 test-results/
+.wrangler/
+dist/
