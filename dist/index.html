@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#181d21">
     <meta name="description" content="A simple exercise and daily notes tracker. Your log stays in this browser.">
-    <title>Exercises</title>
+    <title>Exercise tracker</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='15' fill='%23448263'/%3E%3Cpath d='M17 32 27 42 48 21' fill='none' stroke='%23e1f6e9' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="./styles.css">
     <script type="module" src="./app.js"></script>
@@ -13,8 +13,8 @@
   <body>
     <main>
       <header class="toolbar">
-        <h1 id="heading">Exercises</h1>
-        <button id="manage-exercises" class="secondary">Exercises <span aria-hidden="true">⚙</span></button>
+        <h1>Exercise tracker</h1>
+        <button id="manage-exercises" class="secondary"><span>Exercises</span><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.7 2.2-2 .9-2.1-.5-2 3.4 1.5 1.7v2.6L2.2 15l2 3.4 2.1-.5 2 .9L9 21h4l.7-2.2 2-.9 2.1.5 2-3.4-1.5-1.7v-2.6L19.8 9l-2-3.4-2.1.5-2-.9L13 3z"/><circle cx="11" cy="12" r="3"/></svg></button>
       </header>
       <p id="storage-error" class="error" role="alert" hidden></p>
       <section id="grid-region" class="grid-region" aria-label="Exercise history" tabindex="0">
@@ -28,10 +28,10 @@
       <form id="exercise-form">
         <header class="dialog-header"><h2 id="exercise-title">Exercises</h2><button type="button" class="icon-button" data-close aria-label="Cancel exercise changes">×</button></header>
         <div id="exercise-list" class="exercise-list"></div>
-        <button id="add-exercise" class="secondary" type="button">+ Exercise</button>
+        <button id="add-exercise" class="secondary" type="button"><span>+ Exercise</span></button>
         <p id="exercise-error" class="error" role="alert" hidden></p>
-        <footer class="dialog-footer"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="primary">Save</button></footer>
-        <p class="storage-note">Saved only in this browser. Clearing site data clears your log.</p>
+        <footer class="dialog-footer"><button type="button" class="secondary" data-close><span>Cancel</span></button><button type="submit" class="primary"><span>Save</span></button></footer>
+        <p class="storage-note">Shift+Enter: add exercise. Stored in this browser only.</p>
       </form>
     </dialog>
 
@@ -41,7 +41,8 @@
         <label for="day-notes" class="sr-only">Daily notes</label>
         <textarea id="day-notes" rows="7" placeholder="What aches?" maxlength="10000"></textarea>
         <p id="notes-error" class="error" role="alert" hidden></p>
-        <footer class="dialog-footer"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="primary">Save</button></footer>
+        <footer class="dialog-footer"><button type="button" class="secondary" data-close><span>Cancel</span></button><button type="submit" class="primary"><span>Save</span></button></footer>
+        <p class="storage-note">Enter: save. Shift+Enter: new line.</p>
       </form>
     </dialog>
     <span id="note-measure" aria-hidden="true"></span>

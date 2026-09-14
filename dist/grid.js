@@ -45,6 +45,9 @@ export function renderGrid(table, log, today, limit) {
     const short = document.createElement('span');
     short.className = 'date-short';
     short.textContent = day === today ? 'Today' : weekday.format(dateFromKey(day));
+    const shortDate = document.createElement('small');
+    shortDate.textContent = `${Number(day.slice(8))}/${Number(day.slice(5, 7))}`;
+    short.append(shortDate);
     time.append(wide, short);
     dateCell.append(time);
     row.append(dateCell);
@@ -69,12 +72,15 @@ export function renderGrid(table, log, today, limit) {
     button.dataset.notesDay = day;
     button.setAttribute('aria-label', `${notes ? 'Edit' : 'Add'} notes for ${fullDate.format(dateFromKey(day))}${notes ? `: ${notes}` : ''}`);
     const preview = document.createElement('span');
-    preview.className = 'note-text';
-    preview.textContent = notes || '+';
+    preview.className = 'note-text note-single';
+    preview.textContent = notes ? notes.replace(/\r\n|\r|\n/g, ' ↵ ') : '+';
+    const multiline = document.createElement('span');
+    multiline.className = 'note-text note-multiline';
+    multiline.textContent = notes || '+';
     const icon = document.createElement('span');
     icon.className = 'note-icon';
     icon.innerHTML = noteIcon;
-    button.append(preview, icon);
+    button.append(preview, multiline, icon);
     cell.append(button);
     row.append(cell);
     body.append(row);
@@ -90,6 +96,7 @@ export function fitGrid(region, table, count) {
   const compact = remaining < document.querySelector('#note-measure').getBoundingClientRect().width;
   const notes = Math.max(compact ? cell : 0, remaining);
   region.classList.toggle('compact-notes', compact);
+  region.classList.toggle('roomy-notes', notes >= 320);
   table.style.setProperty('--notes-width', `${notes}px`);
   table.style.width = `${date + count * cell + notes}px`;
 }

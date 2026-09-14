@@ -1,5 +1,7 @@
 import {dateFromKey, updateExercises} from './model.js';
 
+const cross = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
+
 export function setupDialogs(getLog, commit, render) {
   const exercisesDialog = document.querySelector('#exercise-dialog');
   const notesDialog = document.querySelector('#notes-dialog');
@@ -10,6 +12,7 @@ export function setupDialogs(getLog, commit, render) {
   let originalNote;
 
   for (const dialog of [exercisesDialog, notesDialog]) {
+    dialog.querySelector('.icon-button[data-close]').innerHTML = cross;
     dialog.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
   }
 
@@ -19,17 +22,22 @@ export function setupDialogs(getLog, commit, render) {
       row.className = `exercise-editor${exercise.deleted ? ' pending-delete' : ''}`;
       const input = document.createElement('input');
       input.value = exercise.name;
-      input.maxLength = 60;
       input.disabled = exercise.deleted ?? false;
       input.setAttribute('aria-label', `Exercise ${index + 1} name`);
       input.dataset.id = exercise.id;
       input.addEventListener('input', () => {exercise.name = input.value;});
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && event.shiftKey && !event.isComposing) {
+          event.preventDefault();
+          document.querySelector('#add-exercise').click();
+        }
+      });
       row.append(input);
       if (exercise.deleted) {
         const undo = document.createElement('button');
         undo.type = 'button';
         undo.className = 'secondary undo-delete';
-        undo.textContent = 'Undo delete';
+        undo.innerHTML = '<span>Undo delete</span>';
         undo.addEventListener('click', () => {exercise.deleted = false; renderExercises(exercise.id);});
         row.append(undo);
       } else {
@@ -37,7 +45,7 @@ export function setupDialogs(getLog, commit, render) {
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'icon-button';
-          button.textContent = direction === -1 ? '↑' : '↓';
+          button.innerHTML = `<svg class="triangle" viewBox="0 0 24 24" aria-hidden="true"><path d="${direction === -1 ? 'm5 16 7-10 7 10z' : 'm5 8 7 10 7-10z'}"/></svg>`;
           button.setAttribute('aria-label', `Move ${exercise.name || 'exercise'} ${direction === -1 ? 'up' : 'down'}`);
           button.disabled = index + direction < 0 || index + direction >= draft.length;
           button.addEventListener('click', () => {
@@ -49,9 +57,13 @@ export function setupDialogs(getLog, commit, render) {
         const remove = document.createElement('button');
         remove.type = 'button';
         remove.className = 'icon-button delete-button';
-        remove.textContent = '×';
+        remove.innerHTML = cross;
         remove.setAttribute('aria-label', `Delete ${exercise.name || 'exercise'}`);
-        remove.addEventListener('click', () => {exercise.deleted = true; renderExercises();});
+        remove.addEventListener('click', () => {
+          exercise.deleted = true;
+          renderExercises();
+          list.querySelector(`input[data-id="${CSS.escape(exercise.id)}"]`).parentElement.querySelector('.undo-delete').focus();
+        });
         row.append(remove);
       }
       return row;
@@ -89,6 +101,13 @@ export function setupDialogs(getLog, commit, render) {
       entry.notes = document.querySelector('#day-notes').value;
     }, document.querySelector('#notes-error'));
     if (success) {notesDialog.close(); render();}
+  });
+  document.querySelector('#day-notes').addEventListener('keydown', event => {
+    // Leave Shift+Enter and IME composition to the native textarea.
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      document.querySelector('#notes-form').requestSubmit();
+    }
   });
 
   return function openNotes(day) {

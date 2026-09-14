@@ -1,4 +1,4 @@
-import {dateKey, dateFromKey, historyDates, setDone} from './model.js';
+import {dateKey, historyDates, setDone} from './model.js';
 import {loadLog, saveLog, STORAGE_KEY} from './storage.js';
 import {renderGrid, fitGrid} from './grid.js';
 import {setupDialogs} from './dialogs.js';
@@ -32,7 +32,6 @@ function commit(change, errorTarget = error) {
 }
 
 function render() {
-  document.querySelector('#heading').textContent = new Intl.DateTimeFormat(undefined, {weekday: 'long', day: 'numeric', month: 'long'}).format(dateFromKey(today));
   renderGrid(table, log, today, historyLimit);
   fitGrid(region, table, log.exercises.length);
   const dates = historyDates(log, today, historyLimit);

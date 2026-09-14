@@ -6,6 +6,8 @@ A small, browser-only version of the desktop exercise log: square green toggles,
 
 Click or tap a square to mark an exercise done; tap again to undo. Open a day's notes to write in a roomy dialog, then Save. Open **Exercises** to rename, add, move up/down, or delete exercises. Changes in either dialog apply only when you Save; Cancel and Escape discard the draft. Deletion can be undone before saving. Saving an exercise deletion permanently removes that exercise's checkmarks, but keeps daily notes and other exercises.
 
+In an exercise name field, **Shift+Enter** adds and focuses a new row. In notes, **Enter** saves and **Shift+Enter** inserts a new line.
+
 The first visit starts with today plus seven empty past days and one exercise named **Exercise**, ready to rename. Intentionally deleting every exercise leaves an empty list; it does not recreate the starter. Exercise IDs survive renaming and reordering, preserving the history.
 
 The date updates every ten seconds while open, and immediately when the page becomes visible or regains focus. After sleep, the current day appears and missing days remain blank. Dates use the device's local timezone, including daylight-saving changes. The latest 35 days are rendered initially as history grows; **Earlier days** reveals more without deleting anything.
@@ -13,10 +15,11 @@ The date updates every ten seconds while open, and immediately when the page bec
 ## Phones and larger screens
 
 1. Desktop keeps the familiar dark grid, 52px square targets, large type, and full dates in a monospace font.
-2. Below 700px, dates become day names (Today remains Today), with 44px square touch targets. The full date remains available to assistive technology and in the notes dialog.
-3. Notes use the remaining width. If fewer than roughly six characters plus padding would fit, they become a note icon; a brighter icon means the day has a note. Both presentations open the same editor.
+2. At 700px and below, dates show the day name and day/month, with 44px square touch targets. The full date remains available to assistive technology and in the notes dialog.
+3. Notes use the remaining width. Desktop notes columns at least 320px wide preserve line breaks and wrap text; other text previews use ` ↵ ` for line breaks. If fewer than roughly six characters plus padding would fit, notes become an icon; a brighter icon means the day has a note. All presentations open the same editor.
 4. With many exercises, scroll the grid horizontally. Date and notes columns stay at the edges; headings stay visible when scrolling vertically. Targets never shrink to cram in more columns.
 5. Reordering uses up/down buttons in the management dialog, so it works with touch and keyboards without drag-and-drop complications.
+6. Vertical exercise headings size naturally to the longest name, without a fixed height or truncation.
 
 Designed for phone widths from 375px upward. Today has a subtle green highlight, and phone editors give each exercise name a full-width field above its controls. The page respects screen safe areas and browser zoom remains enabled.
 
