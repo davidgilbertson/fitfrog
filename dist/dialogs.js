@@ -1,0 +1,103 @@
+import {dateFromKey, updateExercises} from './model.js';
+
+export function setupDialogs(getLog, commit, render) {
+  const exercisesDialog = document.querySelector('#exercise-dialog');
+  const notesDialog = document.querySelector('#notes-dialog');
+  const list = document.querySelector('#exercise-list');
+  let draft = [];
+  let originalExercises;
+  let notesDay;
+  let originalNote;
+
+  for (const dialog of [exercisesDialog, notesDialog]) {
+    dialog.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
+  }
+
+  function renderExercises(focusId) {
+    const items = draft.map((exercise, index) => {
+      const row = document.createElement('div');
+      row.className = `exercise-editor${exercise.deleted ? ' pending-delete' : ''}`;
+      const input = document.createElement('input');
+      input.value = exercise.name;
+      input.maxLength = 60;
+      input.disabled = exercise.deleted ?? false;
+      input.setAttribute('aria-label', `Exercise ${index + 1} name`);
+      input.dataset.id = exercise.id;
+      input.addEventListener('input', () => {exercise.name = input.value;});
+      row.append(input);
+      if (exercise.deleted) {
+        const undo = document.createElement('button');
+        undo.type = 'button';
+        undo.className = 'secondary undo-delete';
+        undo.textContent = 'Undo delete';
+        undo.addEventListener('click', () => {exercise.deleted = false; renderExercises(exercise.id);});
+        row.append(undo);
+      } else {
+        for (const direction of [-1, 1]) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'icon-button';
+          button.textContent = direction === -1 ? '↑' : '↓';
+          button.setAttribute('aria-label', `Move ${exercise.name || 'exercise'} ${direction === -1 ? 'up' : 'down'}`);
+          button.disabled = index + direction < 0 || index + direction >= draft.length;
+          button.addEventListener('click', () => {
+            [draft[index], draft[index + direction]] = [draft[index + direction], draft[index]];
+            renderExercises(exercise.id);
+          });
+          row.append(button);
+        }
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'icon-button delete-button';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', `Delete ${exercise.name || 'exercise'}`);
+        remove.addEventListener('click', () => {exercise.deleted = true; renderExercises();});
+        row.append(remove);
+      }
+      return row;
+    });
+    list.replaceChildren(...items);
+    if (focusId) list.querySelector(`input[data-id="${CSS.escape(focusId)}"]`)?.focus();
+  }
+
+  document.querySelector('#manage-exercises').addEventListener('click', () => {
+    originalExercises = JSON.stringify(getLog().exercises);
+    draft = structuredClone(getLog().exercises);
+    document.querySelector('#exercise-error').hidden = true;
+    renderExercises();
+    exercisesDialog.showModal();
+  });
+  document.querySelector('#add-exercise').addEventListener('click', () => {
+    const exercise = {id: crypto.randomUUID(), name: ''};
+    draft.push(exercise);
+    renderExercises(exercise.id);
+  });
+  document.querySelector('#exercise-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const error = document.querySelector('#exercise-error');
+    const success = commit(log => {
+      if (JSON.stringify(log.exercises) !== originalExercises) throw new Error('Exercises changed in another tab. Cancel and reopen this dialog.');
+      updateExercises(log, draft.filter(exercise => !exercise.deleted));
+    }, error);
+    if (success) {exercisesDialog.close(); render();}
+  });
+  document.querySelector('#notes-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const success = commit(log => {
+      if ((log.days[notesDay]?.notes ?? '') !== originalNote) throw new Error('This note changed in another tab. Cancel and reopen it.');
+      const entry = log.days[notesDay] ??= {done: [], notes: ''};
+      entry.notes = document.querySelector('#day-notes').value;
+    }, document.querySelector('#notes-error'));
+    if (success) {notesDialog.close(); render();}
+  });
+
+  return function openNotes(day) {
+    notesDay = day;
+    originalNote = getLog().days[day]?.notes ?? '';
+    document.querySelector('#notes-title').textContent = new Intl.DateTimeFormat(undefined, {weekday: 'long', day: 'numeric', month: 'long'}).format(dateFromKey(day));
+    document.querySelector('#day-notes').value = originalNote;
+    document.querySelector('#notes-error').hidden = true;
+    notesDialog.showModal();
+    document.querySelector('#day-notes').focus();
+  };
+}

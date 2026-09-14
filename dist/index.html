@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#181d21">
+    <meta name="description" content="A simple exercise and daily notes tracker. Your log stays in this browser.">
+    <title>Exercises</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='15' fill='%23448263'/%3E%3Cpath d='M17 32 27 42 48 21' fill='none' stroke='%23e1f6e9' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header class="toolbar">
+        <h1 id="heading">Exercises</h1>
+        <button id="manage-exercises" class="secondary">Exercises <span aria-hidden="true">⚙</span></button>
+      </header>
+      <p id="storage-error" class="error" role="alert" hidden></p>
+      <section id="grid-region" class="grid-region" aria-label="Exercise history" tabindex="0">
+        <table id="tracker"><caption class="sr-only">Daily exercise log, newest day first</caption></table>
+        <button id="earlier-days" class="secondary earlier" hidden>Earlier days</button>
+      </section>
+      <noscript>This tracker needs JavaScript enabled to save your exercises in this browser.</noscript>
+    </main>
+
+    <dialog id="exercise-dialog" aria-labelledby="exercise-title">
+      <form id="exercise-form">
+        <header class="dialog-header"><h2 id="exercise-title">Exercises</h2><button type="button" class="icon-button" data-close aria-label="Cancel exercise changes">×</button></header>
+        <div id="exercise-list" class="exercise-list"></div>
+        <button id="add-exercise" class="secondary" type="button">+ Exercise</button>
+        <p id="exercise-error" class="error" role="alert" hidden></p>
+        <footer class="dialog-footer"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="primary">Save</button></footer>
+        <p class="storage-note">Saved only in this browser. Clearing site data clears your log.</p>
+      </form>
+    </dialog>
+
+    <dialog id="notes-dialog" aria-labelledby="notes-title">
+      <form id="notes-form">
+        <header class="dialog-header"><h2 id="notes-title">Notes</h2><button type="button" class="icon-button" data-close aria-label="Cancel note changes">×</button></header>
+        <label for="day-notes" class="sr-only">Daily notes</label>
+        <textarea id="day-notes" rows="7" placeholder="What aches?" maxlength="10000"></textarea>
+        <p id="notes-error" class="error" role="alert" hidden></p>
+        <footer class="dialog-footer"><button type="button" class="secondary" data-close>Cancel</button><button type="submit" class="primary">Save</button></footer>
+      </form>
+    </dialog>
+    <span id="note-measure" aria-hidden="true"></span>
+  </body>
+</html>
