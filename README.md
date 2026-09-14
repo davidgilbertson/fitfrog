@@ -55,4 +55,4 @@ pnpm test
 pnpm deploy
 ```
 
-That runs `vite build` (hashed assets under `dist/client/assets`, cached immutably via `public/_headers`) and then `wrangler deploy`, which picks up the config the Vite plugin wrote to `dist/fitfrog/`. Pushes to `main` also deploy through `.github/workflows/deploy.yml`, which needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets.
+That runs `vite build` (hashed assets under `dist/client/assets`, cached immutably via `public/_headers`; `vite-plugin-pwa` generates `manifest.webmanifest` and a Workbox service worker `sw.js` that precaches everything so the app installs and loads offline, and `_headers` marks `sw.js` `no-cache` so a new deploy is picked up on the next visit) and then `wrangler deploy`, which picks up the config the Vite plugin wrote to `dist/fitfrog/`. Pushes to `main` also deploy through `.github/workflows/deploy.yml`, which needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets.

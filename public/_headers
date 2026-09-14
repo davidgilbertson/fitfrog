@@ -1,2 +1,6 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The service worker URL never changes, so it must always be revalidated.
+/sw.js
+  Cache-Control: no-cache

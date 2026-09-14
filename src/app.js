@@ -2,6 +2,7 @@ import {dateKey, historyDates, setDone} from './model.js';
 import {loadLog, saveLog, sync, adoptId, LOG_KEY} from './storage.js';
 import {renderGrid, fitGrid} from './grid.js';
 import {setupDialogs} from './dialogs.js';
+import {registerSW} from 'virtual:pwa-register';
 
 const region = document.querySelector('#grid-region');
 const table = document.querySelector('#tracker');
@@ -9,6 +10,18 @@ const error = document.querySelector('#storage-error');
 let log;
 let today = dateKey();
 let historyLimit = 35;
+
+// The browser re-fetches sw.js on every load; when a new build is found, Workbox precaches the new
+// files, activates, and the plugin reloads the page. Show a note while that happens.
+registerSW({
+  immediate: true,
+  onRegisteredSW(_, registration) {
+    registration.addEventListener('updatefound', () => {
+      // updatefound also fires on the very first install, when nothing is controlling the page yet.
+      if (navigator.serviceWorker.controller) document.querySelector('#update-banner').hidden = false;
+    });
+  },
+});
 
 function showError(target, message) {
   target.textContent = message;
