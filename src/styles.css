@@ -28,7 +28,8 @@ thead th { background: #20262b; vertical-align: bottom; padding-block: 14px; col
 .date-cell { width: var(--date-width); min-width: var(--date-width); position: sticky; left: 0; z-index: 2; padding-inline: 12px; white-space: nowrap; }
 .exercise-header, .exercise-cell { width: var(--cell); padding-inline: 0; }
 .exercise-header { text-align: center; }
-.exercise-header span { display: block; width: max-content; margin-inline: auto; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+/* Physical margins on purpose: margin-inline on a vertical-rl element maps to top/bottom, so it would not centre the label. */
+.exercise-header span { display: block; width: max-content; margin: 0 auto; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 .notes-cell { width: var(--notes-width); position: sticky; right: 0; z-index: 2; }
 thead .notes-cell { padding-left: 10px; }
 tbody tr { --row: #1c2227; }
