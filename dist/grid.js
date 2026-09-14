@@ -32,6 +32,7 @@ export function renderGrid(table, log, today, limit) {
   const body = document.createElement('tbody');
   for (const day of historyDates(log, today, limit)) {
     const row = document.createElement('tr');
+    row.classList.toggle('is-today', day === today);
     const dateCell = document.createElement('th');
     dateCell.className = 'date-cell';
     dateCell.scope = 'row';

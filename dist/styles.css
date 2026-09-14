@@ -7,14 +7,18 @@ button:disabled { opacity: .35; cursor: default; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, .grid-region:focus-visible { outline: 2px solid #b1e6c6; outline-offset: -2px; }
 main { height: 100dvh; display: flex; flex-direction: column; padding: 20px; gap: 18px; }
 .toolbar, .dialog-header, .dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.toolbar h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+.toolbar h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -.025em; line-height: 1.25; text-wrap: balance; }
 .secondary, .primary, .icon-button { border: 1px solid #3a464d; border-radius: 6px; padding: .4rem .75rem; background: #293239; min-height: 44px; }
 .primary { background: #448263; border-color: #448263; color: #fff; }
-.icon-button { width: 44px; padding: 0; display: inline-grid; place-items: center; }
+.icon-button { width: 44px; flex-shrink: 0; padding: 0; display: inline-grid; place-items: center; }
 .toolbar button { white-space: nowrap; }
 .toolbar button span { margin-left: .25rem; }
 .grid-region { --cell: 52px; --date-width: 174px; min-height: 0; overflow: auto; flex: 1; isolation: isolate; scrollbar-color: #4a585f #20262b; scrollbar-width: thin; }
 table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+thead th:first-child { border-start-start-radius: 10px; }
+thead th:last-child { border-start-end-radius: 10px; }
+tbody tr:last-child th { border-end-start-radius: 10px; }
+tbody tr:last-child td:last-child { border-end-end-radius: 10px; }
 th { font-weight: 400; text-align: left; }
 thead { position: sticky; top: 0; z-index: 4; }
 thead th { background: #20262b; height: 190px; vertical-align: bottom; padding-bottom: 15px; color: #bcc8cd; }
@@ -26,12 +30,14 @@ thead th { background: #20262b; height: 190px; vertical-align: bottom; padding-b
 thead .notes-cell { padding-left: 10px; }
 tbody tr { --row: #1c2227; }
 tbody tr:nth-child(even) { --row: #20262b; }
+tbody tr.is-today { --row: #25382f; }
+.is-today .date-cell { color: #b1e6c6; box-shadow: inset 3px 0 #80b99a; font-weight: 600; }
 tbody th, tbody td { background: var(--row); height: var(--cell); padding-block: 0; }
 tbody .date-cell { font-family: Consolas, "SFMono-Regular", ui-monospace, monospace; font-size: .9rem; }
 .date-short { display: none; }
 .toggle { display: grid; place-items: center; width: var(--cell); height: var(--cell); padding: 5px; border: 0; background: transparent; position: relative; }
-.toggle::before { content: ""; position: absolute; inset: 5px; border-radius: 5px; background: #2b353b; }
-.toggle[aria-pressed="true"]::before { background: #448263; }
+.toggle::before { content: ""; position: absolute; inset: 5px; border-radius: 5px; background: #303c43; box-shadow: inset 0 0 0 1px #425158; }
+.toggle[aria-pressed="true"]::before { background: #448263; box-shadow: inset 0 0 0 1px #639a7c; }
 .toggle svg { width: 25px; height: 25px; z-index: 1; opacity: 0; fill: none; stroke: #e1f6e9; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .toggle[aria-pressed="true"] svg { opacity: 1; }
 .note-button { width: 100%; height: var(--cell); border: 0; background: transparent; text-align: left; padding: 0 12px; display: flex; align-items: center; min-width: 0; }
@@ -47,11 +53,12 @@ tbody .date-cell { font-family: Consolas, "SFMono-Regular", ui-monospace, monosp
 .compact-notes .has-note { color: #b1e6c6; }
 #note-measure { position: absolute; width: calc(6ch + 24px); height: 0; visibility: hidden; pointer-events: none; }
 .earlier { margin: 16px 12px; }
-dialog { background: #20262b; color: #dce4e8; border: 1px solid #3a464d; border-radius: 12px; padding: 24px; width: min(620px, calc(100% - 24px)); max-height: calc(100dvh - 32px); }
+dialog { background: #20262b; color: #dce4e8; border: 1px solid #3a464d; border-radius: 16px; padding: 24px; width: min(620px, calc(100% - 24px)); max-height: calc(100dvh - 32px); box-shadow: 0 24px 80px #0006; }
 dialog::backdrop { background: #060a0ecc; }
 .dialog-header { margin-bottom: 22px; }
 h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
 .dialog-footer { justify-content: flex-end; margin-top: 24px; }
+.dialog-footer button { min-width: 84px; }
 input, textarea { background: #181d21; border: 1px solid #4a585f; color: #edf2f7; border-radius: 6px; padding: 10px 12px; width: 100%; min-width: 0; }
 textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 .exercise-list { display: grid; gap: 12px; margin-bottom: 18px; }
@@ -66,9 +73,9 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 @media (hover: hover) { .secondary:hover, .icon-button:hover { background: #35433c; } .toggle:hover::before { box-shadow: inset 0 0 0 1px #7a9c8b; } .note-button:hover { background: #2b353b; } .primary:hover { background: #519974; } }
 @media (max-width: 700px) {
   :root { font-size: 16px; }
-  main { padding: 12px 8px; gap: 16px; }
+  main { padding: max(16px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); gap: 20px; }
   .toolbar { padding-inline: 4px; }
-  .toolbar h1 { font-size: 1.2rem; }
+  .toolbar h1 { font-size: 1.375rem; max-width: 15ch; }
   .toolbar button { padding-inline: 10px; }
   .toolbar button span { display: none; }
   .grid-region { --cell: 44px; --date-width: 62px; }
@@ -80,6 +87,11 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
   .exercise-header span { max-height: 132px; }
   .toggle::before { inset: 4px; }
   .toggle svg { width: 23px; height: 23px; }
-  dialog { padding: 18px 14px; }
+  dialog { padding: 20px 16px; }
+  .dialog-header h2 { line-height: 1.35; text-wrap: balance; }
+  .exercise-editor { grid-template-columns: 1fr 44px 44px 44px; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid #354047; }
+  .exercise-editor input { grid-column: 1 / -1; min-height: 46px; }
+  .exercise-editor .icon-button:first-of-type { grid-column: 2; }
+  .exercise-editor.pending-delete .undo-delete { grid-column: 2 / -1; }
   .storage-note { font-size: .875rem; }
 }

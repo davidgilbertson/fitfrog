@@ -18,7 +18,7 @@ The date updates every ten seconds while open, and immediately when the page bec
 4. With many exercises, scroll the grid horizontally. Date and notes columns stay at the edges; headings stay visible when scrolling vertically. Targets never shrink to cram in more columns.
 5. Reordering uses up/down buttons in the management dialog, so it works with touch and keyboards without drag-and-drop complications.
 
-Designed around 400px and wider phones, but also checked below that. Browser zoom remains enabled.
+Designed for phone widths from 375px upward. Today has a subtle green highlight, and phone editors give each exercise name a full-width field above its controls. The page respects screen safe areas and browser zoom remains enabled.
 
 ## Storage and privacy
 
@@ -51,7 +51,7 @@ pnpm test
 
 This is a static Site. `.openai/hosting.json` identifies the registered Site and sets `static.directory` to `dist`. Publish through Codex's Sites workflow from this repository; no secrets, database bindings, migrations or build are needed. Do not create a second Site for later updates: retain its ID and stable URL so browser logs remain attached to the same origin.
 
-The initial deployment is private to David. Before giving it to a friend, change the Site's access deliberately (invite them or make the empty app public). Sharing the site does not share anyone's browser-local log. Keep the local preview as development data, since it is separate from the hosted log.
+The site is public: anyone with its URL can use it. Sharing the site does not share anyone's browser-local log. Keep the local preview as development data, since it is separate from the hosted log.
 
 ## Deliberately left out
 
