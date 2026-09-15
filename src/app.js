@@ -9,7 +9,8 @@ const table = document.querySelector('#tracker');
 const error = document.querySelector('#storage-error');
 let log;
 let today = dateKey();
-let historyLimit = 35;
+// Only a rendering cap; the whole log is always loaded. Show all resets on the next page load.
+let showAll = false;
 
 // The browser re-fetches sw.js on every load; when a new build is found, Workbox precaches the new
 // files, activates, and the plugin reloads the page. Show a note while that happens.
@@ -45,10 +46,11 @@ function commit(change, errorTarget = error) {
 }
 
 function render() {
-  renderGrid(table, log, today, historyLimit);
+  const limit = showAll ? Infinity : 90;
+  renderGrid(table, log, today, limit);
   fitGrid(region, table, log.exercises.length);
-  const dates = historyDates(log, today, historyLimit);
-  document.querySelector('#earlier-days').hidden = dates.length === 0 || dates.at(-1) <= log.startDate;
+  const dates = historyDates(log, today, limit);
+  document.querySelector('#show-all').hidden = dates.length === 0 || dates.at(-1) <= log.startDate;
 }
 
 // A link from Settings carries ?id=; it replaces this browser's own log. The rare failure cases
@@ -77,7 +79,7 @@ try {
     const note = event.target.closest('button[data-notes-day]');
     if (note) openNotes(note.dataset.notesDay);
   });
-  document.querySelector('#earlier-days').addEventListener('click', () => {historyLimit += 35; render();});
+  document.querySelector('#show-all').addEventListener('click', () => {showAll = true; render();});
   new ResizeObserver(() => fitGrid(region, table, log.exercises.length)).observe(region);
 
   function refreshDate() {

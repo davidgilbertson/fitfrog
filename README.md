@@ -10,7 +10,7 @@ In an exercise name field, **Shift+Enter** adds and focuses a new row. In notes,
 
 The first visit starts with today plus seven empty past days and one exercise named **Exercise**, ready to rename. Intentionally deleting every exercise leaves an empty list; it does not recreate the starter. Exercise IDs survive renaming and reordering, preserving the history.
 
-The date updates every ten seconds while open, and immediately when the page becomes visible or regains focus. After sleep, the current day appears and missing days remain blank. Dates use the device's local timezone, including daylight-saving changes. The latest 35 days are rendered initially as history grows; **Earlier days** reveals more without deleting anything.
+The date updates every ten seconds while open, and immediately when the page becomes visible or regains focus. After sleep, the current day appears and missing days remain blank. Dates use the device's local timezone, including daylight-saving changes. The latest 90 days are rendered; **Show all days** renders the whole history until the next page load. Nothing is ever deleted.
 
 ## Phones and larger screens
 

@@ -17,7 +17,7 @@ export function createLog(today = dateKey()) {
   return {version: 1, startDate: shiftDate(today, -7), exercises: [{id: crypto.randomUUID(), name: 'Exercise'}], days: {}};
 }
 
-export function historyDates(log, today = dateKey(), limit = 35) {
+export function historyDates(log, today = dateKey(), limit = Infinity) {
   const result = [];
   for (let day = today; day >= log.startDate && result.length < limit; day = shiftDate(day, -1)) result.push(day);
   return result;
