@@ -45,9 +45,6 @@ export function renderGrid(table, log, today, limit) {
     const short = document.createElement('span');
     short.className = 'date-short';
     short.textContent = day === today ? 'Today' : weekday.format(dateFromKey(day));
-    const shortDate = document.createElement('small');
-    shortDate.textContent = `${Number(day.slice(8))}/${Number(day.slice(5, 7))}`;
-    short.append(shortDate);
     time.append(wide, short);
     dateCell.append(time);
     row.append(dateCell);

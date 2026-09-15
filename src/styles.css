@@ -34,7 +34,6 @@ thead th { background: #20262b; vertical-align: bottom; padding-block: 14px; col
 thead .notes-cell { padding-left: 10px; }
 tbody tr { --row: #1c2227; }
 tbody tr:nth-child(even) { --row: #20262b; }
-tbody tr.is-today { --row: #25382f; }
 .is-today .date-cell { color: #b1e6c6; box-shadow: inset 3px 0 #80b99a; font-weight: 600; }
 tbody th, tbody td { background: var(--row); height: var(--cell); padding-block: 0; }
 tbody .date-cell { font-family: Consolas, "SFMono-Regular", ui-monospace, monospace; font-size: .9rem; }
@@ -53,8 +52,9 @@ tbody .date-cell { font-family: Consolas, "SFMono-Regular", ui-monospace, monosp
 .compact-notes .note-icon { display: flex; }
 .compact-notes .note-text { display: none; }
 .compact-notes .note-button { justify-content: center; padding: 0; }
-.compact-notes thead .notes-cell { padding-inline: 0; }
-.compact-notes thead .note-icon { justify-content: center; }
+/* In icon mode the header icon looks like a button, so hide it (the sr-only label remains). */
+.compact-notes thead .note-icon { display: none; }
+.compact-notes .note-button:not(.has-note) { opacity: .35; }
 .compact-notes .has-note { color: #b1e6c6; }
 @media (min-width: 701px) {
   .roomy-notes .note-single { display: none; }
@@ -94,14 +94,13 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
   .toolbar { padding-inline: 4px; }
   .toolbar h1 { font-size: 1.125rem; }
   .toolbar button { padding-inline: 10px; }
-  .grid-region { --cell: 44px; --date-width: 62px; }
+  .grid-region { --cell: 38px; --date-width: 56px; }
   .date-cell { padding-inline: 5px; }
   tbody .date-cell { font-size: .85rem; }
   .date-wide { display: none; }
   .date-short { display: inline; }
-  .date-short small { display: block; font-size: 11px; line-height: 1.3; color: #9babb4; font-weight: 400; }
   .toggle::before { inset: 4px; }
-  .toggle svg { width: 23px; height: 23px; }
+  .toggle svg { width: 20px; height: 20px; }
   dialog { padding: 20px 16px; }
   .dialog-header h2 { line-height: 1.35; text-wrap: balance; }
   .exercise-editor { grid-template-columns: 1fr 44px 44px 44px; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid #354047; }
