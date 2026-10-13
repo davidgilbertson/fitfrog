@@ -30,6 +30,16 @@ export function setDone(log, day, exerciseId, done) {
   if (done) entry.done.push(exerciseId);
 }
 
+// Conflict resolution is deliberately limited to ticks under this exact date key.
+export function mergeTodayTicks(log, otherLog, today) {
+  const otherDone = otherLog.days[today]?.done ?? [];
+  const ids = new Set(log.exercises.map(exercise => exercise.id));
+  const done = [...new Set([...(log.days[today]?.done ?? []), ...otherDone])].filter(id => ids.has(id));
+  if (!done.length) return;
+  const entry = log.days[today] ??= {done: [], notes: ''};
+  entry.done = done;
+}
+
 export function updateExercises(log, exercises) {
   const cleaned = exercises.map(({id, name}) => ({id, name: name.trim()}));
   if (cleaned.some(exercise => !exercise.name)) throw new Error('Give each exercise a name.');

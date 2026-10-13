@@ -56,7 +56,7 @@ tbody .date-cell { font-family: Consolas, "SFMono-Regular", ui-monospace, monosp
 .compact-notes thead .note-icon { display: none; }
 .compact-notes .note-button:not(.has-note) { opacity: .35; }
 .compact-notes .has-note { color: #b1e6c6; }
-@media (min-width: 701px) {
+@media (min-width: 601px) {
   .roomy-notes .note-single { display: none; }
   .roomy-notes .note-multiline { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
   .roomy-notes .note-button { height: auto; min-height: var(--cell); padding-block: 10px; line-height: 1.5; }
@@ -73,7 +73,9 @@ h3 { margin: 0 0 14px; font-size: 1rem; font-weight: 600; color: #bcc8cd; }
 input, textarea { background: #181d21; border: 1px solid #4a585f; color: #edf2f7; border-radius: 6px; padding: 10px 12px; width: 100%; min-width: 0; }
 textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 .exercise-list { display: grid; gap: 12px; margin-bottom: 18px; }
-.exercise-editor { display: grid; grid-template-columns: minmax(0, 1fr) 44px 44px 44px; gap: 6px; align-items: center; }
+.settings-hint { margin: -6px 0 14px; font-size: .85rem; color: #9babb4; }
+.exercise-editor { display: grid; grid-template-columns: minmax(0, 1fr) 40px 40px 40px; gap: 6px; align-items: center; }
+.exercise-editor .icon-button { width: 40px; min-height: 40px; }
 .exercise-editor.pending-delete input { text-decoration: line-through; opacity: .5; }
 .exercise-editor.pending-delete .undo-delete { grid-column: 2 / -1; width: auto; }
 .delete-button { color: #e3a7a7; }
@@ -88,7 +90,7 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 [hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (hover: hover) { .secondary:hover, .icon-button:hover { background: #35433c; } .toggle:hover::before { box-shadow: inset 0 0 0 1px #7a9c8b; } .note-button:hover { background: #2b353b; } .primary:hover { background: #519974; } }
-@media (max-width: 700px) {
+@media (max-width: 600px) {
   :root { font-size: 16px; }
   main { padding: max(16px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); gap: 20px; }
   .toolbar { padding-inline: 4px; }
@@ -102,10 +104,11 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
   .toggle::before { inset: 4px; }
   .toggle svg { width: 20px; height: 20px; }
   dialog { padding: 20px 16px; }
+  /* Settings fills the screen on phones; the Shift+Enter shortcut is keyboard-only so it's hidden here. */
+  #settings-dialog { width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; border: 0; border-radius: 0; padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  #settings-dialog .storage-note { display: none; }
   .dialog-header h2 { line-height: 1.35; text-wrap: balance; }
-  .exercise-editor { grid-template-columns: 1fr 44px 44px 44px; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid #354047; }
-  .exercise-editor input { grid-column: 1 / -1; min-height: 46px; }
-  .exercise-editor .icon-button:first-of-type { grid-column: 2; }
-  .exercise-editor.pending-delete .undo-delete { grid-column: 2 / -1; }
+  .exercise-list { gap: 8px; }
+  .exercise-editor input { min-height: 40px; padding: 8px; }
   .storage-note { font-size: .875rem; }
 }

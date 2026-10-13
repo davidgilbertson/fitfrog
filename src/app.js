@@ -70,14 +70,22 @@ try {
   render();
   const openNotes = setupDialogs(() => log, commit, render);
   table.addEventListener('click', event => {
+    // After sleep, the row still labelled Today belongs to the current day, not yesterday.
+    const displayedToday = today;
+    const dateChanged = dateKey() !== today;
+    refreshDate();
     const toggle = event.target.closest('button[data-exercise]');
     if (toggle) {
-      const {day, exercise} = toggle.dataset;
-      const done = toggle.getAttribute('aria-pressed') !== 'true';
-      if (commit(next => setDone(next, day, exercise, done))) toggle.setAttribute('aria-pressed', String(done));
+      const {exercise} = toggle.dataset;
+      const day = toggle.dataset.day === displayedToday ? today : toggle.dataset.day;
+      const done = dateChanged ? !(log.days[day]?.done.includes(exercise) ?? false) : toggle.getAttribute('aria-pressed') !== 'true';
+      if (commit(next => setDone(next, day, exercise, done))) {
+        if (dateChanged) render();
+        else toggle.setAttribute('aria-pressed', String(done));
+      }
     }
     const note = event.target.closest('button[data-notes-day]');
-    if (note) openNotes(note.dataset.notesDay);
+    if (note) openNotes(note.dataset.notesDay === displayedToday ? today : note.dataset.notesDay);
   });
   document.querySelector('#show-all').addEventListener('click', () => {showAll = true; render();});
   new ResizeObserver(() => fitGrid(region, table, log.exercises.length)).observe(region);
@@ -99,6 +107,7 @@ try {
   document.addEventListener('visibilitychange', () => {if (!document.hidden) {refreshDate(); pull();}});
   window.addEventListener('focus', () => {refreshDate(); pull();});
   window.addEventListener('online', pull);
+  window.addEventListener('log-synced', () => {log = loadLog(); render();});
   window.addEventListener('storage', event => {
     if (event.key !== LOG_KEY) return;
     try {log = loadLog(); render();} catch (cause) {showError(error, cause.message);}

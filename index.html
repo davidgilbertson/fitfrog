@@ -1,62 +1,76 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#181d21">
-    <meta name="description" content="A simple exercise and daily notes tracker.">
-    <title>Fit Frog</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="stylesheet" href="./src/styles.css">
-    <script type="module" src="./src/app.js"></script>
-  </head>
-  <body>
-    <main>
-      <header class="toolbar">
-        <h1>Fit Frog</h1>
-        <button id="open-settings" class="secondary"><span>Settings</span><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.7 2.2-2 .9-2.1-.5-2 3.4 1.5 1.7v2.6L2.2 15l2 3.4 2.1-.5 2 .9L9 21h4l.7-2.2 2-.9 2.1.5 2-3.4-1.5-1.7v-2.6L19.8 9l-2-3.4-2.1.5-2-.9L13 3z"/><circle cx="11" cy="12" r="3"/></svg></button>
-      </header>
-      <p id="storage-error" class="error" role="alert" hidden></p>
-      <section id="grid-region" class="grid-region" aria-label="Exercise history" tabindex="0">
-        <table id="tracker"><caption class="sr-only">Daily exercise log, newest day first</caption></table>
-        <button id="show-all" class="secondary show-all" hidden>Show all days</button>
-      </section>
-      <noscript>This tracker needs JavaScript enabled to save your exercises in this browser.</noscript>
-    </main>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#181d21">
+  <meta name="description" content="A simple exercise and daily notes tracker.">
+  <title>Fit Frog</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+<main>
+  <header class="toolbar">
+    <h1>Fit Frog</h1>
+    <button id="open-settings" class="secondary"><span>Settings</span>
+      <svg class="gear" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9 3-.7 2.2-2 .9-2.1-.5-2 3.4 1.5 1.7v2.6L2.2 15l2 3.4 2.1-.5 2 .9L9 21h4l.7-2.2 2-.9 2.1.5 2-3.4-1.5-1.7v-2.6L19.8 9l-2-3.4-2.1.5-2-.9L13 3z"/>
+        <circle cx="11" cy="12" r="3"/>
+      </svg>
+    </button>
+  </header>
+  <p id="storage-error" class="error" role="alert" hidden></p>
+  <section id="grid-region" class="grid-region" aria-label="Exercise history" tabindex="0">
+    <table id="tracker">
+      <caption class="sr-only">Daily exercise log, newest day first</caption>
+    </table>
+    <button id="show-all" class="secondary show-all" hidden>Show all days</button>
+  </section>
+  <noscript>This tracker needs JavaScript enabled to save your exercises in this browser.</noscript>
+</main>
 
-    <dialog id="settings-dialog" aria-labelledby="settings-title">
-      <form id="exercise-form">
-        <header class="dialog-header"><h2 id="settings-title">Settings</h2><button type="button" class="icon-button" data-close aria-label="Close settings">×</button></header>
-        <h3>Exercises</h3>
-        <div id="exercise-list" class="exercise-list"></div>
-        <button id="add-exercise" class="secondary" type="button"><span>+ Exercise</span></button>
-        <p id="exercise-error" class="error" role="alert" hidden></p>
-        <footer class="dialog-footer"><button type="button" class="secondary" data-close><span>Cancel</span></button><button type="submit" class="primary"><span>Save</span></button></footer>
-        <p class="storage-note">Shift+Enter: add exercise.</p>
-      </form>
-      <section class="link-section">
-        <h3>Use on another device</h3>
-        <p>Open this link on another device to use the same log there. Treat it like a password: anyone with the link can see and change your log.</p>
-        <div class="link-row">
-          <label for="share-link" class="sr-only">Link to this log</label>
-          <input id="share-link" readonly>
-          <button id="copy-link" class="secondary" type="button"><span>Copy</span></button>
-        </div>
-      </section>
-    </dialog>
+<dialog id="settings-dialog" aria-labelledby="settings-title">
+  <form id="exercise-form">
+    <header class="dialog-header"><h2 id="settings-title">Settings</h2>
+      <button type="button" class="icon-button" data-close aria-label="Close settings">×</button>
+    </header>
+    <h3>Exercises</h3>
+    <p class="settings-hint">Changes save automatically.</p>
+    <div id="exercise-list" class="exercise-list"></div>
+    <button id="add-exercise" class="secondary" type="button"><span>+ Exercise</span></button>
+    <p id="exercise-error" class="error" role="alert" hidden></p>
+    <p class="storage-note">Shift+Enter: add exercise.</p>
+  </form>
+  <section class="link-section">
+    <h3>Link another device</h3>
+    <p>Open this link on another device to share the same data there. Treat this link like a password: anyone with the link can see and change your data.</p>
+    <div class="link-row">
+      <label for="share-link" class="sr-only">Link to this log</label>
+      <input id="share-link" readonly>
+      <button id="copy-link" class="secondary" type="button"><span>Copy</span></button>
+    </div>
+  </section>
+</dialog>
 
-    <dialog id="notes-dialog" aria-labelledby="notes-title">
-      <form id="notes-form">
-        <header class="dialog-header"><h2 id="notes-title">Notes</h2><button type="button" class="icon-button" data-close aria-label="Cancel note changes">×</button></header>
-        <label for="day-notes" class="sr-only">Daily notes</label>
-        <textarea id="day-notes" rows="7" placeholder="What aches?" maxlength="10000"></textarea>
-        <p id="notes-error" class="error" role="alert" hidden></p>
-        <footer class="dialog-footer"><button type="button" class="secondary" data-close><span>Cancel</span></button><button type="submit" class="primary"><span>Save</span></button></footer>
-        <p class="storage-note">Enter: save. Shift+Enter: new line.</p>
-      </form>
-    </dialog>
-    <span id="note-measure" aria-hidden="true"></span>
-    <p id="update-banner" class="update-banner" role="status" hidden>Updating…</p>
-  </body>
+<dialog id="notes-dialog" aria-labelledby="notes-title">
+  <form id="notes-form">
+    <header class="dialog-header"><h2 id="notes-title">Notes</h2>
+      <button type="button" class="icon-button" data-close aria-label="Cancel note changes">×</button>
+    </header>
+    <label for="day-notes" class="sr-only">Daily notes</label>
+    <textarea id="day-notes" rows="7" placeholder="What aches?" maxlength="10000"></textarea>
+    <p id="notes-error" class="error" role="alert" hidden></p>
+    <footer class="dialog-footer">
+      <button type="button" class="secondary" data-close><span>Cancel</span></button>
+      <button type="submit" class="primary"><span>Save</span></button>
+    </footer>
+    <p class="storage-note">Enter: save. Shift+Enter: new line.</p>
+  </form>
+</dialog>
+<span id="note-measure" aria-hidden="true"></span>
+<p id="update-banner" class="update-banner" role="status" hidden>Updating…</p>
+</body>
 </html>

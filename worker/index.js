@@ -1,14 +1,20 @@
 import {DurableObject} from 'cloudflare:workers';
+import {resolveSave} from './save.js';
 
 // One Durable Object per user ID, holding the whole log as a single value.
-// The server is a dumb store: the client owns validation and last-write-wins.
+// A stale save combines today's ticks; the rest of the incoming log replaces the stored log.
 export class UserLog extends DurableObject {
   async read() {
     return (await this.ctx.storage.get('saved')) ?? null;
   }
 
-  async write(saved) {
-    await this.ctx.storage.put('saved', saved);
+  async write(incoming) {
+    return this.ctx.storage.transaction(async storage => {
+      const current = await storage.get('saved');
+      const saved = resolveSave(current, incoming);
+      await storage.put('saved', saved);
+      return saved;
+    });
   }
 }
 
@@ -22,8 +28,7 @@ export default {
       return saved ? Response.json(saved) : new Response('Unknown ID', {status: 404});
     }
     if (request.method === 'PUT') {
-      await stub.write(await request.json());
-      return new Response(null, {status: 204});
+      return Response.json(await stub.write(await request.json()));
     }
     return new Response('Method not allowed', {status: 405});
   },

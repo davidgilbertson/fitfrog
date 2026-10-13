@@ -12,10 +12,46 @@ export function setupDialogs(getLog, commit, render) {
   let notesDay;
   let originalNote;
 
+  function saveExercises(restoredExercise) {
+    const success = commit(log => {
+      if (JSON.stringify(log.exercises) !== originalExercises) throw new Error('Exercises changed on another device or tab. Close and reopen settings.');
+      // Empty new rows are placeholders, not exercises to persist.
+      const exercises = draft.filter(exercise => !exercise.deleted && (exercise.name.trim() || log.exercises.some(saved => saved.id === exercise.id)));
+      for (const exercise of draft.filter(exercise => exercise.deleted && !exercise.doneDays)) {
+        exercise.doneDays = Object.keys(log.days).filter(day => log.days[day].done.includes(exercise.id));
+      }
+      updateExercises(log, exercises);
+      if (restoredExercise) {
+        for (const day of restoredExercise.doneDays ?? []) {
+          const entry = log.days[day] ??= {done: [], notes: ''};
+          entry.done.push(restoredExercise.id);
+        }
+      }
+    }, document.querySelector('#exercise-error'));
+    if (success) {
+      originalExercises = JSON.stringify(getLog().exercises);
+      render();
+    }
+    return success;
+  }
+
   for (const dialog of [settingsDialog, notesDialog]) {
     dialog.querySelector('.icon-button[data-close]').innerHTML = cross;
-    dialog.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
+    dialog.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => {
+      document.activeElement.blur();
+      dialog.close();
+    }));
   }
+  // Escape must commit the focused name just like tapping the close button.
+  settingsDialog.addEventListener('cancel', () => document.activeElement.blur());
+  settingsDialog.addEventListener('close', () => {
+    const error = document.querySelector('#exercise-error');
+    if (!error.hidden) {
+      const pageError = document.querySelector('#storage-error');
+      pageError.textContent = error.textContent;
+      pageError.hidden = false;
+    }
+  });
 
   function renderExercises(focusId) {
     const items = draft.map((exercise, index) => {
@@ -27,6 +63,15 @@ export function setupDialogs(getLog, commit, render) {
       input.setAttribute('aria-label', `Exercise ${index + 1} name`);
       input.dataset.id = exercise.id;
       input.addEventListener('input', () => {exercise.name = input.value;});
+      input.addEventListener('blur', () => {
+        exercise.name = input.value;
+        const savedName = getLog().exercises.find(saved => saved.id === exercise.id)?.name ?? '';
+        if (exercise.name === savedName) return;
+        if (!saveExercises()) {
+          exercise.name = savedName;
+        }
+        input.value = exercise.name;
+      });
       input.addEventListener('keydown', event => {
         if (event.key === 'Enter' && event.shiftKey && !event.isComposing) {
           event.preventDefault();
@@ -39,7 +84,12 @@ export function setupDialogs(getLog, commit, render) {
         undo.type = 'button';
         undo.className = 'secondary undo-delete';
         undo.innerHTML = '<span>Undo delete</span>';
-        undo.addEventListener('click', () => {exercise.deleted = false; renderExercises(exercise.id);});
+        undo.addEventListener('click', () => {
+          exercise.deleted = false;
+          if (saveExercises(exercise)) delete exercise.doneDays;
+          else exercise.deleted = true;
+          renderExercises(exercise.id);
+        });
         row.append(undo);
       } else {
         for (const direction of [-1, 1]) {
@@ -51,6 +101,7 @@ export function setupDialogs(getLog, commit, render) {
           button.disabled = index + direction < 0 || index + direction >= draft.length;
           button.addEventListener('click', () => {
             [draft[index], draft[index + direction]] = [draft[index + direction], draft[index]];
+            if (!saveExercises()) [draft[index], draft[index + direction]] = [draft[index + direction], draft[index]];
             renderExercises(exercise.id);
           });
           row.append(button);
@@ -62,6 +113,7 @@ export function setupDialogs(getLog, commit, render) {
         remove.setAttribute('aria-label', `Delete ${exercise.name || 'exercise'}`);
         remove.addEventListener('click', () => {
           exercise.deleted = true;
+          if (!saveExercises()) {exercise.deleted = false; delete exercise.doneDays; return;}
           renderExercises();
           list.querySelector(`input[data-id="${CSS.escape(exercise.id)}"]`).parentElement.querySelector('.undo-delete').focus();
         });
@@ -95,18 +147,15 @@ export function setupDialogs(getLog, commit, render) {
     setTimeout(() => {label.textContent = 'Copy';}, 2000);
   });
   document.querySelector('#add-exercise').addEventListener('click', () => {
+    // Shift+Enter clicks this button without moving focus out of the name field.
+    document.activeElement.blur();
     const exercise = {id: crypto.randomUUID(), name: ''};
     draft.push(exercise);
     renderExercises(exercise.id);
   });
   document.querySelector('#exercise-form').addEventListener('submit', event => {
     event.preventDefault();
-    const error = document.querySelector('#exercise-error');
-    const success = commit(log => {
-      if (JSON.stringify(log.exercises) !== originalExercises) throw new Error('Exercises changed in another tab. Cancel and reopen this dialog.');
-      updateExercises(log, draft.filter(exercise => !exercise.deleted));
-    }, error);
-    if (success) {settingsDialog.close(); render();}
+    document.activeElement.blur();
   });
   document.querySelector('#notes-form').addEventListener('submit', event => {
     event.preventDefault();
