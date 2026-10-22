@@ -82,7 +82,14 @@ export function renderGrid(table, log, today, limit) {
     row.append(cell);
     body.append(row);
   }
-  table.replaceChildren(head, body);
+  // Explicit columns keep the visible header and semantic table aligned even
+  // though the semantic header is removed from visual layout.
+  const columns = document.createElement('colgroup');
+  columns.innerHTML = `<col style="width:var(--date-width)">${'<col style="width:var(--cell)">'.repeat(log.exercises.length)}<col style="width:var(--notes-width)">`;
+  table.replaceChildren(columns, head, body);
+  // A visual copy outside the horizontal scroller can stick to the page. Keep the
+  // original headers in the semantic table for screen-reader column associations.
+  document.querySelector('#history-header table').replaceChildren(columns.cloneNode(true), head.cloneNode(true));
 }
 
 export function fitGrid(region, table, count) {
@@ -96,4 +103,8 @@ export function fitGrid(region, table, count) {
   region.classList.toggle('roomy-notes', notes >= 320);
   table.style.setProperty('--notes-width', `${notes}px`);
   table.style.width = `${date + count * cell + notes}px`;
+  const header = document.querySelector('#history-header');
+  header.classList.toggle('compact-notes', compact);
+  header.querySelector('table').style.cssText = table.style.cssText;
+  header.scrollLeft = region.scrollLeft;
 }

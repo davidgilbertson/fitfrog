@@ -5,7 +5,14 @@ button, input, textarea { font: inherit; }
 button { color: inherit; cursor: pointer; touch-action: manipulation; }
 button:disabled { opacity: .35; cursor: default; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, .grid-region:focus-visible { outline: 2px solid #b1e6c6; outline-offset: -2px; }
-main { height: 100dvh; display: flex; flex-direction: column; padding: 20px; gap: 18px; }
+main { --cell: 52px; min-height: 100dvh; display: flex; flex-direction: column; padding: 20px; gap: 18px; }
+.today-section { flex: none; }
+.today-section h2 { font-size: .875rem; color: #9babb4; padding-inline: 4px; margin-bottom: 8px; }
+.today-group + .today-group { border-top: 1px solid #425158; margin-top: 4px; padding-top: 4px; }
+.today-exercise { display: flex; align-items: center; min-height: var(--cell); cursor: pointer; padding-right: 8px; }
+.today-exercise input { appearance: none; flex: none; width: calc(var(--cell) - 8px); height: calc(var(--cell) - 8px); margin: 4px; padding: 0; border: 1px solid #425158; border-radius: 5px; background: #303c43; cursor: pointer; }
+.today-label { padding-left: 6px; overflow-wrap: anywhere; min-width: 0; }
+.today-recency { margin-left: 12px; white-space: nowrap; color: #9babb4; font-size: .75rem; }
 .toolbar, .dialog-header, .dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .toolbar h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -.025em; line-height: 1.25; text-wrap: balance; }
 .secondary, .primary, .icon-button { border: 1px solid #3a464d; border-radius: 6px; padding: .6rem .75rem; background: #293239; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; line-height: 1.2; }
@@ -16,14 +23,16 @@ main { height: 100dvh; display: flex; flex-direction: column; padding: 20px; gap
 .icon-button .triangle { width: 20px; height: 20px; fill: currentColor; stroke: none; }
 .gear { width: 20px; height: 20px; }
 .toolbar button { white-space: nowrap; }
-.grid-region { --cell: 52px; --date-width: 174px; min-height: 0; overflow: auto; flex: 1; isolation: isolate; scrollbar-color: #4a585f #20262b; scrollbar-width: thin; }
+.toolbar .settings-button { border-color: transparent; background: transparent; color: #bcc8cd; padding: 0; }
+.history-section { --date-width: 174px; min-width: 0; margin-top: 8px; }
+.history-header { position: sticky; top: 0; z-index: 4; overflow-x: auto; scrollbar-width: none; background: #20262b; }
+.grid-region { overflow-x: auto; isolation: isolate; scrollbar-color: #4a585f #20262b; scrollbar-width: thin; }
+/* Only the body scrolls horizontally; the page owns all vertical scrolling. */
+#tracker thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 table { table-layout: fixed; border-collapse: separate; border-spacing: 0; }
-thead th:first-child { border-start-start-radius: 10px; }
-thead th:last-child { border-start-end-radius: 10px; }
 tbody tr:last-child th { border-end-start-radius: 10px; }
 tbody tr:last-child td:last-child { border-end-end-radius: 10px; }
 th { font-weight: 400; text-align: left; }
-thead { position: sticky; top: 0; z-index: 4; }
 thead th { background: #20262b; vertical-align: bottom; padding-block: 14px; color: #bcc8cd; }
 .date-cell { width: var(--date-width); min-width: var(--date-width); position: sticky; left: 0; z-index: 2; padding-inline: 12px; white-space: nowrap; }
 .exercise-header, .exercise-cell { width: var(--cell); padding-inline: 0; }
@@ -92,11 +101,11 @@ textarea { resize: vertical; line-height: 1.5; min-height: 180px; }
 @media (hover: hover) { .secondary:hover, .icon-button:hover { background: #35433c; } .toggle:hover::before { box-shadow: inset 0 0 0 1px #7a9c8b; } .note-button:hover { background: #2b353b; } .primary:hover { background: #519974; } }
 @media (max-width: 600px) {
   :root { font-size: 16px; }
-  main { padding: max(16px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); gap: 20px; }
+  main { --cell: 38px; padding: max(12px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); gap: 16px; }
   .toolbar { padding-inline: 4px; }
-  .toolbar h1 { font-size: 1.125rem; }
+  .toolbar h1 { font-size: 1.25rem; }
   .toolbar button { padding-inline: 10px; }
-  .grid-region { --cell: 38px; --date-width: 56px; }
+  .history-section { --date-width: 56px; }
   .date-cell { padding-inline: 5px; }
   tbody .date-cell { font-size: .85rem; }
   .date-wide { display: none; }

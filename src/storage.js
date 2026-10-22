@@ -66,7 +66,7 @@ async function push() {
       const sentDone = log.days[today]?.done ?? [];
       const addedDone = (saved.log.days[today]?.done ?? []).filter(id => !sentDone.includes(id));
       const next = loadLog();
-      mergeTodayTicks(next, {days: {[today]: {done: addedDone}}}, today);
+      mergeTodayTicks(next, {days: {[today]: {done: addedDone, completedAt: saved.log.days[today]?.completedAt}}}, today);
       localStorage.setItem(SAVED_AT_KEY, String(saved.savedAt));
       saveLog(next);
     }

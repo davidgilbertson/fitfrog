@@ -106,6 +106,30 @@ test('additional clicks during a save survive its response and the next save', a
   assert.deepEqual(server.log.days[today], {done: ['walk'], notes: 'Typed while saving'});
 });
 
+test('completion times returned during more local edits survive the following save', async t => {
+  const completedAt = new Date().toISOString();
+  server = {savedAt: 200, log: log(['walk'])};
+  server.log.days[today].completedAt = {walk: completedAt};
+  let release;
+  const responseReady = new Promise(resolve => {release = resolve;});
+  const handleFetch = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async (...args) => {
+    const response = await handleFetch(...args);
+    await responseReady;
+    return response;
+  });
+  saveLog(log(['squats']));
+  const saving = pendingPush();
+  const next = log(['squats']);
+  next.days[today].notes = 'Edited during save';
+  saveLog(next);
+  release();
+  await saving;
+  assert.deepEqual(loadLog().days[today].completedAt, {walk: completedAt});
+  await pendingPush();
+  assert.deepEqual(server.log.days[today].completedAt, {walk: completedAt});
+});
+
 test('failed saves retain unsent local data and retry on sync', async t => {
   const handleFetch = globalThis.fetch;
   t.mock.method(console, 'warn', () => {});

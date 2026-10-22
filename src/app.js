@@ -2,15 +2,22 @@ import {dateKey, historyDates, setDone} from './model.js';
 import {loadLog, saveLog, sync, adoptId, LOG_KEY} from './storage.js';
 import {renderGrid, fitGrid} from './grid.js';
 import {setupDialogs} from './dialogs.js';
+import {renderToday} from './today.js';
 import {registerSW} from 'virtual:pwa-register';
 
 const region = document.querySelector('#grid-region');
+const historyHeader = document.querySelector('#history-header');
 const table = document.querySelector('#tracker');
+const todaySection = document.querySelector('#today-section');
 const error = document.querySelector('#storage-error');
 let log;
 let today = dateKey();
 // Only a rendering cap; the whole log is always loaded. Show all resets on the next page load.
 let showAll = false;
+
+// Both surfaces accept horizontal swipes, including the headings while stuck.
+region.addEventListener('scroll', () => {historyHeader.scrollLeft = region.scrollLeft;});
+historyHeader.addEventListener('scroll', () => {region.scrollLeft = historyHeader.scrollLeft;});
 
 // The browser re-fetches sw.js on every load; when a new build is found, Workbox precaches the new
 // files, activates, and the plugin reloads the page. Show a note while that happens.
@@ -48,6 +55,7 @@ function commit(change, errorTarget = error) {
 function render() {
   const limit = showAll ? Infinity : 90;
   renderGrid(table, log, today, limit);
+  renderToday(todaySection, log, today);
   fitGrid(region, table, log.exercises.length);
   const dates = historyDates(log, today, limit);
   document.querySelector('#show-all').hidden = dates.length === 0 || dates.at(-1) <= log.startDate;
@@ -69,6 +77,13 @@ try {
   log = loadLog();
   render();
   const openNotes = setupDialogs(() => log, commit, render);
+  todaySection.addEventListener('change', event => {
+    const checkbox = event.target.closest('input[data-exercise]');
+    if (!checkbox) return;
+    refreshDate();
+    if (commit(next => setDone(next, today, checkbox.dataset.exercise, true))) render();
+    else checkbox.checked = false;
+  });
   table.addEventListener('click', event => {
     // After sleep, the row still labelled Today belongs to the current day, not yesterday.
     const displayedToday = today;
@@ -81,7 +96,10 @@ try {
       const done = dateChanged ? !(log.days[day]?.done.includes(exercise) ?? false) : toggle.getAttribute('aria-pressed') !== 'true';
       if (commit(next => setDone(next, day, exercise, done))) {
         if (dateChanged) render();
-        else toggle.setAttribute('aria-pressed', String(done));
+        else {
+          toggle.setAttribute('aria-pressed', String(done));
+          renderToday(todaySection, log, today);
+        }
       }
     }
     const note = event.target.closest('button[data-notes-day]');
@@ -94,7 +112,7 @@ try {
     if (dateKey() === today) return;
     today = dateKey();
     render();
-    region.scrollTop = 0;
+    window.scrollTo({top: 0});
   }
   // Failures here are expected when offline; the local log is fine and the next sync will catch up.
   async function pull() {
