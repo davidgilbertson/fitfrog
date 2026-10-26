@@ -1,8 +1,11 @@
 import {daysSinceLastDone, todayExercises} from './model.js';
 
-export function renderToday(section, log, today) {
+export function renderToday(section, log, today, sort) {
+  for (const button of section.querySelectorAll('[data-today-sort]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.todaySort === sort));
+  }
   const daysSince = daysSinceLastDone(log, today);
-  const groups = todayExercises(log, today).map(exercises => {
+  const groups = todayExercises(log, today, sort).map(exercises => {
     const group = document.createElement('div');
     group.className = 'today-group';
     for (const exercise of exercises) {

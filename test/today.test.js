@@ -13,7 +13,7 @@ function logWithExercises() {
   return log;
 }
 
-const groupIds = log => todayExercises(log, today).map(group => group.map(exercise => exercise.id));
+const groupIds = (log, sort) => todayExercises(log, today, sort).map(group => group.map(exercise => exercise.id));
 
 test('days since last done uses all legacy history, ignores future ticks, and counts calendar days', () => {
   const log = logWithExercises();
@@ -28,18 +28,18 @@ test('days since last done uses all legacy history, ignores future ticks, and co
   assert.equal(daysSince.has('e'), false);
 });
 
-test('legacy ticks group by yesterday and keep column order, including never completed exercises', () => {
+test('smart sort puts new daily exercises first and removes completed exercises', () => {
   const log = logWithExercises();
   log.days[yesterday] = {done: ['a', 'c'], notes: ''};
-  assert.deepEqual(groupIds(log), [['b', 'd', 'e'], ['a', 'c']]);
+  assert.deepEqual(groupIds(log), [['a', 'c'], ['b', 'd', 'e']]);
   setDone(log, today, 'b', true, now);
   setDone(log, today, 'a', true, now);
-  assert.deepEqual(groupIds(log), [['d', 'e'], ['c']]);
+  assert.deepEqual(groupIds(log), [['c'], ['d', 'e']]);
   setDone(log, today, 'a', false, now);
-  assert.deepEqual(groupIds(log), [['d', 'e'], ['a', 'c']]);
+  assert.deepEqual(groupIds(log), [['a', 'c'], ['d', 'e']]);
 });
 
-test('each group sorts by the latest completion time of day, with unknown times last', () => {
+test('daily exercises sort by latest completion time of day, with unknown times last', () => {
   const log = logWithExercises();
   const earlier = shiftDate(today, -2);
   log.days[earlier] = {done: ['b', 'd'], notes: '', completedAt: {
@@ -51,7 +51,52 @@ test('each group sorts by the latest completion time of day, with unknown times 
     b: new Date(2026, 9, 21, 21).toISOString(),
     a: new Date(2026, 9, 21, 7).toISOString(),
   }};
-  assert.deepEqual(groupIds(log), [['d', 'e'], ['a', 'b', 'c']]);
+  assert.deepEqual(groupIds(log), [['a', 'd', 'b', 'c'], ['e']]);
+});
+
+test('daily detection uses six distinct days in the previous week, excluding today and the future', () => {
+  const log = logWithExercises();
+  log.days[shiftDate(today, -20)] = {done: ['a', 'b', 'c', 'd'], notes: ''};
+  for (let days = 1; days <= 7; days++) {
+    log.days[shiftDate(today, -days)] = {done: [
+      ...(days <= 6 ? ['a'] : []),
+      ...(days >= 2 ? ['b'] : []),
+      ...(days <= 5 ? ['c'] : []),
+      ...(days === 1 ? ['d', 'd', 'd', 'd', 'd', 'd'] : []),
+    ], notes: ''};
+  }
+  log.days[shiftDate(today, 1)] = {done: ['c'], notes: ''};
+  assert.deepEqual(groupIds(log), [['a', 'b'], ['e', 'c', 'd']]);
+  setDone(log, today, 'c', true, now);
+  assert.deepEqual(groupIds(log), [['a', 'b'], ['e', 'd']]);
+});
+
+test('new daily exercises may miss one day, but old exercises do not reset their first completion', () => {
+  const log = logWithExercises();
+  log.days[shiftDate(today, -20)] = {done: ['d'], notes: ''};
+  log.days[shiftDate(today, -4)] = {done: ['a', 'b', 'd'], notes: ''};
+  log.days[shiftDate(today, -3)] = {done: ['a'], notes: ''};
+  log.days[yesterday] = {done: ['a', 'b', 'c', 'd'], notes: ''};
+  assert.deepEqual(groupIds(log), [['a', 'c'], ['e', 'b', 'd']]);
+});
+
+test('oldest first uses calendar recency across all history, with never first and no divider', () => {
+  const log = logWithExercises();
+  log.days[shiftDate(today, -30)] = {done: ['c'], notes: ''};
+  log.days[shiftDate(today, -3)] = {done: ['b', 'd'], notes: ''};
+  log.days[yesterday] = {done: ['a'], notes: ''};
+  log.days[shiftDate(today, 1)] = {done: ['c', 'e'], notes: ''};
+  assert.deepEqual(groupIds(log, 'oldest'), [['e', 'c', 'b', 'd', 'a']]);
+  setDone(log, today, 'c', true, now);
+  assert.deepEqual(groupIds(log, 'oldest'), [['e', 'b', 'd', 'a']]);
+});
+
+test('column sort follows exercise settings, omits completed exercises, and has no divider', () => {
+  const log = logWithExercises();
+  log.exercises.reverse();
+  log.days[yesterday] = {done: ['a', 'c'], notes: ''};
+  setDone(log, today, 'd', true, now);
+  assert.deepEqual(groupIds(log, 'columns'), [['e', 'c', 'b', 'a']]);
 });
 
 test('only actual current-day completions get timestamps; unticking removes their timestamp', () => {
@@ -82,9 +127,11 @@ test('conflicting saves retain completion times with the ticks, choosing the lat
 
 test('an empty or fully completed log has two empty groups', () => {
   const log = logWithExercises();
-  assert.deepEqual(groupIds(log), [['a', 'b', 'c', 'd', 'e'], []]);
+  assert.deepEqual(groupIds(log), [[], ['a', 'b', 'c', 'd', 'e']]);
   for (const exercise of log.exercises) setDone(log, today, exercise.id, true, now);
   assert.deepEqual(groupIds(log), [[], []]);
+  assert.deepEqual(groupIds(log, 'oldest'), [[]]);
+  assert.deepEqual(groupIds(log, 'columns'), [[]]);
   log.exercises = [];
   assert.deepEqual(groupIds(log), [[], []]);
 });

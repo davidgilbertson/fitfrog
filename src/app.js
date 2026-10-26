@@ -12,6 +12,8 @@ const todaySection = document.querySelector('#today-section');
 const error = document.querySelector('#storage-error');
 let log;
 let today = dateKey();
+const TODAY_SORT_KEY = 'fitfrog-today-sort';
+let todaySort;
 // Only a rendering cap; the whole log is always loaded. Show all resets on the next page load.
 let showAll = false;
 
@@ -55,7 +57,7 @@ function commit(change, errorTarget = error) {
 function render() {
   const limit = showAll ? Infinity : 90;
   renderGrid(table, log, today, limit);
-  renderToday(todaySection, log, today);
+  renderToday(todaySection, log, today, todaySort);
   fitGrid(region, table, log.exercises.length);
   const dates = historyDates(log, today, limit);
   document.querySelector('#show-all').hidden = dates.length === 0 || dates.at(-1) <= log.startDate;
@@ -75,8 +77,20 @@ if (linkedId) {
 
 try {
   log = loadLog();
+  const savedSort = localStorage.getItem(TODAY_SORT_KEY);
+  todaySort = ['smart', 'oldest', 'columns'].includes(savedSort) ? savedSort : 'smart';
   render();
   const openNotes = setupDialogs(() => log, commit, render);
+  todaySection.addEventListener('click', event => {
+    const button = event.target.closest('button[data-today-sort]');
+    if (!button) return;
+    try {
+      localStorage.setItem(TODAY_SORT_KEY, button.dataset.todaySort);
+      todaySort = button.dataset.todaySort;
+      refreshDate();
+      renderToday(todaySection, log, today, todaySort);
+    } catch (cause) {showError(error, `Could not save your sort preference. ${cause.message}`);}
+  });
   todaySection.addEventListener('change', event => {
     const checkbox = event.target.closest('input[data-exercise]');
     if (!checkbox) return;
@@ -98,7 +112,7 @@ try {
         if (dateChanged) render();
         else {
           toggle.setAttribute('aria-pressed', String(done));
-          renderToday(todaySection, log, today);
+          renderToday(todaySection, log, today, todaySort);
         }
       }
     }

@@ -32,11 +32,24 @@ export function setDone(log, day, exerciseId, done, now = new Date()) {
   if (!done && entry.completedAt) delete entry.completedAt[exerciseId];
 }
 
-export function todayExercises(log, today) {
+export function todayExercises(log, today, sort = 'smart') {
+  const remaining = log.exercises.filter(exercise => !log.days[today]?.done.includes(exercise.id));
+  if (sort === 'columns') return [remaining];
+  const daysSince = daysSinceLastDone(log, today);
+  // Never completed exercises lead; ties retain column order.
+  const oldestFirst = (a, b) => (daysSince.get(b.id) ?? Infinity) - (daysSince.get(a.id) ?? Infinity);
+  if (sort === 'oldest') return [remaining.sort(oldestFirst)];
+
   const lastCompleted = new Map();
+  const firstDone = new Map();
+  const recentCounts = new Map();
+  const weekStart = shiftDate(today, -7);
   for (const [day, entry] of Object.entries(log.days)) {
-    if (day > today) continue;
-    for (const id of entry.done) {
+    // Today's ticks must not change the daily classification of unfinished exercises.
+    if (day >= today) continue;
+    for (const id of new Set(entry.done)) {
+      if (!firstDone.has(id) || day < firstDone.get(id)) firstDone.set(id, day);
+      if (day >= weekStart) recentCounts.set(id, (recentCounts.get(id) ?? 0) + 1);
       const at = entry.completedAt?.[id];
       if (at && (!lastCompleted.has(id) || at > lastCompleted.get(id))) lastCompleted.set(id, at);
     }
@@ -47,12 +60,17 @@ export function todayExercises(log, today) {
     const date = new Date(at);
     return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
   };
-  const yesterdayDone = log.days[shiftDate(today, -1)]?.done ?? [];
-  const remaining = log.exercises.filter(exercise => !log.days[today]?.done.includes(exercise.id));
+  const isDaily = exercise => {
+    const first = firstDone.get(exercise.id);
+    if (!first) return false;
+    const days = Math.min(7, (Date.parse(today) - Date.parse(first)) / 86_400_000);
+    return (recentCounts.get(exercise.id) ?? 0) >= Math.max(1, days - 1);
+  };
   // Stable sorting leaves unknown times and equal times in column order.
-  return [false, true].map(doneYesterday => remaining
-    .filter(exercise => yesterdayDone.includes(exercise.id) === doneYesterday)
-    .sort((a, b) => timeOfDay(a) - timeOfDay(b)));
+  return [
+    remaining.filter(isDaily).sort((a, b) => timeOfDay(a) - timeOfDay(b)),
+    remaining.filter(exercise => !isDaily(exercise)).sort(oldestFirst),
+  ];
 }
 
 export function daysSinceLastDone(log, today) {

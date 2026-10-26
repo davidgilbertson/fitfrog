@@ -7,7 +7,13 @@ button:disabled { opacity: .35; cursor: default; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, .grid-region:focus-visible { outline: 2px solid #b1e6c6; outline-offset: -2px; }
 main { --cell: 52px; min-height: 100dvh; display: flex; flex-direction: column; padding: 20px; gap: 18px; }
 .today-section { flex: none; }
-.today-section h2 { font-size: .875rem; color: #9babb4; padding-inline: 4px; margin-bottom: 8px; }
+.today-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.today-section h2 { font-size: .875rem; color: #9babb4; padding-inline: 4px; }
+.today-sort { display: flex; flex: none; gap: 2px; padding: 3px; border: 1px solid #2d373e; border-radius: 10px; background: #20262b; }
+.today-sort button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #9babb4; }
+.today-sort button[aria-pressed="true"] { background: #354d41; color: #b1e6c6; }
+.today-sort svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) { .today-sort button[aria-pressed="false"]:hover { background: #35433c; color: #dce4e8; } }
 .today-group + .today-group { border-top: 1px solid #425158; margin-top: 4px; padding-top: 4px; }
 .today-exercise { display: flex; align-items: center; min-height: var(--cell); cursor: pointer; padding-right: 8px; }
 .today-exercise input { appearance: none; flex: none; width: calc(var(--cell) - 8px); height: calc(var(--cell) - 8px); margin: 4px; padding: 0; border: 1px solid #425158; border-radius: 5px; background: #303c43; cursor: pointer; }

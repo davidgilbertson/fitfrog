@@ -2,7 +2,7 @@
 
 A small web exercise log: exercises across the top, one row per day (newest first), a square toggle per exercise, and daily notes. It's a web version of the desktop exercise log in `../misc`. Deployed to https://fitfrog.dgapps.io as a Cloudflare Worker.
 
-Above the history, Today lists unfinished exercises: those skipped yesterday first, then those completed yesterday, separated by a subtle divider. Each group sorts by the time of day of the latest recorded completion, followed by exercises without recorded times in column order. Ticking either view updates both; completed exercises disappear from Today. Completion times are recorded from now on for current-day ticks, not retrospective history edits.
+Above the history, Today lists unfinished exercises with three sort options, remembered per browser. Smart (the default) puts daily exercises first, ordered by their latest recorded completion time of day, then a divider and everything else oldest first. Daily means completed on at least six of the previous seven days; newer exercises may miss one day since their first completion. Unknown completion times follow known times in column order. Oldest first sorts the whole list by time since last completion, with never-completed exercises first. Column order matches the history columns. Ticking either view updates both; completed exercises disappear from Today. Completion times are recorded for current-day ticks, not retrospective history edits.
 
 Design for a 375×667 phone first; desktop just gets more room. Nothing is ever deleted from the log; deleting an exercise removes its checkmarks but keeps notes and history. There's an optional, feature-detected WebMCP tool (`read_exercise_log` in `src/app.js`) for browsers with a built-in agent.
 
