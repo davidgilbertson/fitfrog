@@ -17,6 +17,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - uses: cloudflare/wrangler-action@v4
+        id: deploy
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Wrangler's upload retries reuse the session token. A fresh command gets a new one.
+      - name: Retry deployment with a fresh upload session
+        if: steps.deploy.outcome == 'failure'
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
